@@ -1,5 +1,6 @@
 class AgendasController < ApplicationController
-  # before_action :set_agenda, only: %i[show edit update destroy]
+  before_action :set_agenda, only: %i[ destroy ]
+  before_action :admin_agenda_destroy, only: %i[ destory ]
 
   def index
     @agendas = Agenda.all
@@ -21,6 +22,14 @@ class AgendasController < ApplicationController
     end
   end
 
+  def destroy
+    if @agenda.destroy
+      redirect_to dashboard_url, notice: I18n.t('views.messages.delete_agenda')
+    else
+      render :index
+    end
+  end
+
   private
 
   def set_agenda
@@ -29,5 +38,9 @@ class AgendasController < ApplicationController
 
   def agenda_params
     params.fetch(:agenda, {}).permit %i[title description]
+  end
+
+  def admin_agenda_destroy
+    redirect_to dashboard_url, notice: I18n.t('views.messages.not_admin') if current_user == @agenda.user || current_user == @agenda.team.owner
   end
 end
