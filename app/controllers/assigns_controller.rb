@@ -22,6 +22,7 @@ class AssignsController < ApplicationController
   end
 
   private
+
   def assign_params
     params[:email]
   end
@@ -41,9 +42,7 @@ class AssignsController < ApplicationController
 
   def email_exist?
     team = find_team(params[:team_id])
-    if team.members.exists?(email: params[:email])
-      redirect_to team_url(team), notice: I18n.t('views.messages.email_already_exists')
-    end
+    redirect_to team_url(team), notice: I18n.t('views.messages.email_already_exists') if team.members.exists?(email: params[:email])
   end
 
   def email_reliable?(address)
@@ -52,9 +51,7 @@ class AssignsController < ApplicationController
 
   def user_exist?
     team = find_team(params[:team_id])
-    unless User.exists?(email: params[:email])
-      redirect_to team_url(team), notice: I18n.t('views.messages.does_not_exist_email')
-    end
+    redirect_to team_url(team), notice: I18n.t('views.messages.does_not_exist_email') unless User.exists?(email: params[:email])
   end
 
   def set_next_team(assign, assigned_user)
