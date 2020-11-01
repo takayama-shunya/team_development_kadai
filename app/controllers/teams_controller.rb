@@ -53,7 +53,7 @@ class TeamsController < ApplicationController
     @team.update(owner_id: @user.id)
     ChengeOwnerMailer.chenge_owner_mail(@user, current_user).deliver
     redirect_to @team, notice: "チームリーダーを#{@user.email}さんに変更しました！"
- end
+  end
 
   private
 
