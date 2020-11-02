@@ -2,6 +2,7 @@ class AssignsController < ApplicationController
   before_action :authenticate_user!
   before_action :email_exist?, only: [:create]
   before_action :user_exist?, only: [:create]
+  before_action :admin_assigns_destroy, only: [:destroy]
 
   def create
     team = find_team(params[:team_id])
@@ -64,5 +65,13 @@ class AssignsController < ApplicationController
 
   def find_team(team_id)
     team = Team.friendly.find(params[:team_id])
+  end
+
+  def admin_assigns_destroy
+    team = Team.friendly.find(params[:team_id])
+    assign = Assign.find(params[:id]) 
+    if current_user.email != team.owner.email && current_user.id != assign.user.id
+      redirect_to team_url(team), notice: "権限がありません"
+    end 
   end
 end
