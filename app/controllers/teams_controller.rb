@@ -1,6 +1,7 @@
 class TeamsController < ApplicationController
   before_action :authenticate_user!
-  before_action :set_team, only: %i[show edit update destroy]
+  before_action :set_team, only: %i[show edit update destroy chenge_owner]
+  before_action :confirm_team_owner, only: %i[chenge_owner]
 
   def index
     @teams = Team.all
@@ -47,6 +48,13 @@ class TeamsController < ApplicationController
     @team = current_user.keep_team_id ? Team.find(current_user.keep_team_id) : current_user.teams.first
   end
 
+  def chenge_owner
+    @user = User.find(params[:user_id])
+    @team.update(owner_id: @user.id)
+    ChengeOwnerMailer.chenge_owner_mail(@user, current_user).deliver
+    redirect_to @team, notice: "チームリーダーを#{@user.email}さんに変更しました！"
+  end
+
   private
 
   def set_team
@@ -55,5 +63,9 @@ class TeamsController < ApplicationController
 
   def team_params
     params.fetch(:team, {}).permit %i[name icon icon_cache owner_id keep_team_id]
+  end
+
+  def confirm_team_owner
+    redirect_to @team, notice: I18n.t('views.messages.not_admin') if current_user.email != @team.owner.email
   end
 end
